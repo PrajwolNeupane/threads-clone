@@ -1,7 +1,29 @@
+"use client"
+import { usePathname, useRouter } from 'next/navigation'
+import { sidebarLinks } from "@/const";
+import Link from "next/link";
+import Image from 'next/image';
 
 function BottomBar() {
+
+    const router = useRouter();
+    const pathname = usePathname();
+
     return (
-        <h1 className="head-text text-left">Bottom Bar</h1>
+        <section className="bottombar">
+            <div className="bottombar_container">
+                {
+                    sidebarLinks.map((link) => {
+                        const isActive = (pathname.includes(link.route) && link.route.length > 1) || pathname === link.route
+                        return (
+                        <Link href={link.route} key={link.label} className={`leftsidebar_link ${isActive && `bg-primary-500`}`}>
+                            <Image src={link.imgURL} alt={link.label} width={24} height={24} />
+                        </Link>
+                        )
+                    }) 
+                }
+            </div>
+        </section>
     )
 }
 
