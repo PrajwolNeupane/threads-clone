@@ -13,8 +13,9 @@ import { UserValidation } from '@/lib/validations/user';
 import * as z from 'zod';
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { Textarea } from "../ui/textarea";
+import { isBase64Image } from "@/lib/utils";
 
 interface Props {
     user: {
@@ -30,22 +31,40 @@ interface Props {
 
 const AccountProfile = ({ user, btnTitle }: Props) => {
 
+    const [files,setFiles] = useState<File[]>([]);
+
     const form = useForm({
         resolver: zodResolver(UserValidation),
         defaultValues: {
-            profile_photo: user?.image || "",
-            name: user?.name || "",
-            username: user?.username || "",
-            bio: user?.bio || ""
+            profile_photo: user?.image ? user.image : "",
+            name: user?.name ? user.name : "",
+            username: user?.username ? user.username : "",
+            bio: user?.bio ? user.bio : "",
         }
     })
 
-    function onHandleImage(e: ChangeEvent, fieldChange: (value: string) => void) {
+    function onHandleImage(e: ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void) {
         e.preventDefault();
+
+        const fileReader =  new  FileReader();
+
+        if(e.target.files &&  e.target.files.length > 0){
+            const file = e.target.files[0];
+            setFiles(Array.from(e.target.files));
+            if(!file.type.includes('image')){
+                return;
+            }
+            fileReader.onload = async (event)=>{
+                const imageDataURL = event?.target?.result?.toString() || "";
+                fieldChange(imageDataURL);
+            }
+            fileReader.readAsDataURL(file)
+        }
     }
 
     function onSubmit(values: z.infer<typeof UserValidation>) {
-        console.log(values)
+        const blob = values.profile_photo;
+        const hasImageChanged = isBase64Image(blob);
     }
 
     return (
@@ -76,7 +95,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                         <FormItem className="flex flex-col gap-3 w-full">
                             <FormLabel className="text-base-semibold text-light-2">Name</FormLabel>
                             <FormControl className="flex-1 text-base-semibold text-gray-100">
-                                <Input placeholder="Joe Doe" className="account-form_input no-focus" type="text" />
+                                <Input className="account-form_input no-focus" type="text"   {...field}/>
                             </FormControl>
                         </FormItem>
                     )}
@@ -88,7 +107,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                         <FormItem className="flex flex-col gap-3 w-full">
                             <FormLabel className="text-base-semibold text-light-2">Username</FormLabel>
                             <FormControl className="flex-1 text-base-semibold text-gray-100">
-                                <Input placeholder="Joe Doe" className="account-form_input no-focus" type="text" />
+                                <Input className="account-form_input no-focus" type="text"   {...field}/>
                             </FormControl>
                         </FormItem>
                     )}
@@ -100,7 +119,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                         <FormItem className="flex flex-col gap-3 w-full">
                             <FormLabel className="text-base-semibold text-light-2">Bio</FormLabel>
                             <FormControl className="flex-1 text-base-semibold text-gray-100">
-                                <Textarea rows={5} className="account-form_input no-focus" placeholder="Hi I am,..." />
+                                <Textarea rows={5} className="account-form_input no-focus" placeholder="Hi I am,..."   {...field}/>
                             </FormControl>
                         </FormItem>
                     )}
