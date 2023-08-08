@@ -16,7 +16,7 @@ import Image from "next/image";
 import { ChangeEvent, useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { isBase64Image } from "@/lib/utils";
-import {useUploadThing} from '@/lib/uploadthing'
+import { useUploadThing } from '@/lib/uploadthing'
 
 
 interface Props {
@@ -33,7 +33,8 @@ interface Props {
 
 const AccountProfile = ({ user, btnTitle }: Props) => {
 
-    const [files,setFiles] = useState<File[]>([]);
+    const [files, setFiles] = useState<File[]>([]);
+    const { startUpload } = useUploadThing("media");
 
     const form = useForm({
         resolver: zodResolver(UserValidation),
@@ -48,15 +49,15 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     function onHandleImage(e: ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void) {
         e.preventDefault();
 
-        const fileReader =  new  FileReader();
+        const fileReader = new FileReader();
 
-        if(e.target.files &&  e.target.files.length > 0){
+        if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
             setFiles(Array.from(e.target.files));
-            if(!file.type.includes('image')){
+            if (!file.type.includes('image')) {
                 return;
             }
-            fileReader.onload = async (event)=>{
+            fileReader.onload = async (event) => {
                 const imageDataURL = event?.target?.result?.toString() || "";
                 fieldChange(imageDataURL);
             }
@@ -64,12 +65,17 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
         }
     }
 
-    function onSubmit(values: z.infer<typeof UserValidation>) {
+    async function onSubmit(values: z.infer<typeof UserValidation>) {
         const blob = values.profile_photo;
         const hasImageChanged = isBase64Image(blob);
-        if(hasImageChanged){
-            const imgRes = 
+        if (hasImageChanged) {
+            const imgRes = await startUpload(files);
+            if (imgRes && imgRes[0].fileUrl) {
+                values.profile_photo = imgRes[0].fileUrl;
+            }
         }
+        
+
     }
 
     return (
@@ -100,7 +106,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                         <FormItem className="flex flex-col gap-3 w-full">
                             <FormLabel className="text-base-semibold text-light-2">Name</FormLabel>
                             <FormControl className="flex-1 text-base-semibold text-gray-100">
-                                <Input className="account-form_input no-focus" type="text"   {...field}/>
+                                <Input className="account-form_input no-focus" type="text"   {...field} />
                             </FormControl>
                         </FormItem>
                     )}
@@ -112,7 +118,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                         <FormItem className="flex flex-col gap-3 w-full">
                             <FormLabel className="text-base-semibold text-light-2">Username</FormLabel>
                             <FormControl className="flex-1 text-base-semibold text-gray-100">
-                                <Input className="account-form_input no-focus" type="text"   {...field}/>
+                                <Input className="account-form_input no-focus" type="text"   {...field} />
                             </FormControl>
                         </FormItem>
                     )}
@@ -124,7 +130,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                         <FormItem className="flex flex-col gap-3 w-full">
                             <FormLabel className="text-base-semibold text-light-2">Bio</FormLabel>
                             <FormControl className="flex-1 text-base-semibold text-gray-100">
-                                <Textarea rows={5} className="account-form_input no-focus" placeholder="Hi I am,..."   {...field}/>
+                                <Textarea rows={5} className="account-form_input no-focus" placeholder="Hi I am,..."   {...field} />
                             </FormControl>
                         </FormItem>
                     )}
