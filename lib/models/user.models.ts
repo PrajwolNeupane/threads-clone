@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { boolean } from "zod";
 
 const userSchema = new mongoose.Schema({
   id: {
@@ -8,21 +7,15 @@ const userSchema = new mongoose.Schema({
   },
   username: {
     type: String,
-    required: true,
     unique: true,
+    required: true,
   },
   name: {
     type: String,
     required: true,
   },
-  image: {
-    type: String,
-    required: true,
-  },
-  bio: {
-    type: String,
-    required: true,
-  },
+  image: String,
+  bio: String,
   threads: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -38,8 +31,9 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Community",
     },
-  ]
+  ],
 });
 
-const User = mongoose.models.User || mongoose.model('User',userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+
 export default User;

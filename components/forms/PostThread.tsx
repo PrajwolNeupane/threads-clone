@@ -7,7 +7,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,19 +14,9 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { usePathname, useRouter } from "next/navigation";
 import { ThreadValidation } from "@/lib/validations/thread";
+import { createThread } from "@/lib/actions/thread.actions";
 
 // import { updateUser } from "@/lib/actions/user.actions";
-
-interface Props {
-  user: {
-    id: string;
-    username: string;
-    name: string;
-    bio: string;
-    image: string;
-  };
-  btnTitle: string;
-}
 
 function PostThread({ userId }: { userId: string }) {
   const router = useRouter();
@@ -41,8 +30,15 @@ function PostThread({ userId }: { userId: string }) {
     },
   });
 
-  const onSubmit = () => {
+  const onSubmit = async(values:z.infer<typeof ThreadValidation>) => {
+    await createThread({
+        text:values.thread,
+        author:userId,
+        communityId:null,
+        path:pathname
+    })
 
+    router.push("/")
   }
 
   return (

@@ -1,45 +1,34 @@
 import mongoose from "mongoose";
-import { boolean } from "zod";
 
 const threadSchema = new mongoose.Schema({
-  id: {
+  text: {
     type: String,
     required: true,
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  name: {
-    type: String,
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
-  image: {
-    type: String,
-    required: true,
+  community: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Community",
   },
-  bio: {
-    type: String,
-    required: true,
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
-  threads: [
+  parentId: {
+    type: String,
+  },
+  children: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Thread",
     },
   ],
-  onboarded: {
-    type: Boolean,
-    default: false,
-  },
-  communities: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Community",
-    },
-  ]
 });
 
-const Thread = mongoose.models.Thread || mongoose.model('Thread',threadSchema);
+const Thread = mongoose.models.Thread || mongoose.model("Thread", threadSchema);
+
 export default Thread;
