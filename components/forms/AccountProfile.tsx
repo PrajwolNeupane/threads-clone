@@ -5,6 +5,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -87,12 +88,11 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       userId: user.id,
       path: pathname,
     });
-    if(pathname === "/profile/edit"){
-        router.back();
-    }else{
-        router.push('/')
+    if (pathname === "/profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
     }
-
   }
 
   return (
@@ -137,6 +137,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   }}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -155,6 +156,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -173,6 +175,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -192,6 +195,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
