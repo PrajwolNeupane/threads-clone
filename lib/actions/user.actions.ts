@@ -54,6 +54,6 @@ export async function fetchUser({userId}:{userId:string}): Promise<any> {
     //   modal:"communities"
     // })
   } catch (error: any) {
-    console.log(`A new error has occured on user action ${error.message}`);
+    console.log(`A new error has occured on fetch user action ${error.message}`);
   }
 }
