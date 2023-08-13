@@ -19,6 +19,7 @@ import { createThread } from "@/lib/actions/thread.actions";
 // import { updateUser } from "@/lib/actions/user.actions";
 
 function PostThread({ userId }: { userId: string }) {
+  
   const router = useRouter();
   const pathname = usePathname();
 
