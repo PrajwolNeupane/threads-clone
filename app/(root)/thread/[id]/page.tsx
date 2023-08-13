@@ -15,10 +15,9 @@ const Page = async ({ params }: { params: { id: string } }) => {
 
   const thread = await fetchThreadById(params.id);
 
-   
   return (
     <section className="relative">
-      <div className=""> 
+      <div className="">
         <ThreadCard
           key={thread?._id}
           id={thread?._id}
@@ -32,11 +31,27 @@ const Page = async ({ params }: { params: { id: string } }) => {
         />
       </div>
       <div className="mt-7">
-        <Comment 
-            threadId={thread.id}
-            currentUserImg={userInfo.image}
-            currentUserId={`${userInfo._id}`}
+        <Comment
+          threadId={thread.id}
+          currentUserImg={userInfo.image}
+          currentUserId={`${userInfo._id}`}
         />
+      </div>
+      <div className="mt-10 ">
+        {thread.children.map((curr: any) => (
+          <ThreadCard
+            key={curr?._id}
+            id={curr?._id}
+            currentUserId={user?.id!}
+            parentId={curr?.parentId}
+            content={curr?.text}
+            author={curr?.author}
+            community={curr?.community}
+            createdAt={curr?.createdAt}
+            comments={curr?.comments}
+            isComment={true}
+          />
+        ))}
       </div>
     </section>
   );

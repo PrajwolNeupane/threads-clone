@@ -41,10 +41,10 @@ const Comment = ({
     await addCommentToThread(
       threadId,
       values.thread,
-      JSON.parse(currentUserId),
+      currentUserId,
       pathname
     );
-    router.push("/");
+    form.reset();
   };
 
   return (
