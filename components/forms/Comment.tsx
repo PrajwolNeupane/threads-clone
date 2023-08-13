@@ -5,7 +5,7 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel
+  FormLabel,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,6 +15,7 @@ import { Button } from "../ui/button";
 import { CommentValidation } from "@/lib/validations/thread";
 import { Input } from "../ui/input";
 import Image from "next/image";
+import { addCommentToThread } from "@/lib/actions/thread.actions";
 
 const Comment = ({
   threadId,
@@ -37,6 +38,12 @@ const Comment = ({
   });
 
   const onSubmit = async (values: z.infer<typeof CommentValidation>) => {
+    await addCommentToThread(
+      threadId,
+      values.thread,
+      JSON.parse(currentUserId),
+      pathname
+    );
     router.push("/");
   };
 
@@ -68,10 +75,7 @@ const Comment = ({
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          className="comment-form_btn"
-        >
+        <Button type="submit" className="comment-form_btn">
           Reply
         </Button>
       </form>
