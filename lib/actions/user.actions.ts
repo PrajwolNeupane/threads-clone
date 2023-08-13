@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import User from "../models/user.models";
 import { connectToDB } from "../mongoose";
+import Thread from "../models/thread.models";
 
 interface Params {
   userId: string;
@@ -22,7 +23,7 @@ export async function updateUser({
   path,
 }: Params): Promise<void> {
   try {
-    connectToDB();  
+    connectToDB();
     await User.findOneAndUpdate(
       { id: userId },
       {
@@ -45,15 +46,42 @@ export async function updateUser({
   }
 }
 
-export async function fetchUser({userId}:{userId:string}): Promise<any> {
+export async function fetchUser({ userId }: { userId: string }): Promise<any> {
   try {
-    connectToDB();  
-    return await User.findOne({id:userId})
+    connectToDB();
+    return await User.findOne({ id: userId });
     // .populate({
     //   path:'communities',
     //   modal:"communities"
     // })
   } catch (error: any) {
-    console.log(`A new error has occured on fetch user action ${error.message}`);
+    console.log(
+      `A new error has occured on fetch user action ${error.message}`
+    );
+  }
+}
+
+export async function fetchUserPosts(userId:string) {
+  try {
+    connectToDB();
+    const threads = await User.findOne({id:userId})
+    .populate({
+      path:'threads',
+      model:Thread,
+      populate:{
+        path:'children',
+        model:Thread,
+        populate:{
+          path:'author',
+          model:User,
+          select:'name image id'
+        }
+      }
+    })
+    return threads;
+  } catch (error:any) {
+    console.log(
+      `A new error has occured on fetchUserPosts user action ${error.message}`
+    );
   }
 }

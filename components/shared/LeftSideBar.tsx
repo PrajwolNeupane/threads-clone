@@ -3,7 +3,7 @@ import Link from "next/link";
 import { sidebarLinks } from '../../const/index.js'
 import Image from "next/image";
 import { usePathname, useRouter } from 'next/navigation'
-import { SignedIn,SignOutButton } from "@clerk/nextjs";
+import { currentUser, SignedIn,SignOutButton } from "@clerk/nextjs";
 
 function LeftSideBar() {
 
