@@ -43,9 +43,9 @@ export async function fetchPost(pageNumber = 1, pageSize = 20) {
     const isNext = totalPostCount > skipAmount + post.length;
 
     return {
-      post,isNext
-    }
-
+      post,
+      isNext,
+    };
   } catch (error: any) {
     console.log(
       `A new error has occured on  createThread action ${error.message}`
@@ -53,25 +53,65 @@ export async function fetchPost(pageNumber = 1, pageSize = 20) {
   }
 }
 
-export async function createThread({ text, author, communityId, path }: Params
-  ) {
-    try {
-      connectToDB();
-  
-      const createdThread = await Thread.create({
-        text,
-        author,
-        community: null, // Assign communityId if provided, or leave it null for personal account
+export async function fetchThreadById(id: string) {
+  try {
+    connectToDB();
+    const thread = await Thread.findById(id)
+      .populate({
+        path: "author",
+        model: User,
+        select: "_id id name image",
+      })
+      .populate({
+        path: "children",
+        populate: [
+          {
+            path: "author",
+            model: User,
+            select: "_id id name parentId image",
+          },
+          {
+            path: "children",
+            model: Thread,
+            populate: {
+              path: "author",
+              model: User,
+              select: "_id id name parentId image",
+            },
+          },
+        ],
       });
-  
-      // Update User model
-      await User.findByIdAndUpdate(author, {
-        $push: { threads: createdThread._id },
-      });
-  
-      revalidatePath(path);
-    } catch (error: any) {
-      throw new Error(`Failed to create thread: ${error.message}`);
-    }
-  }
 
+    return thread;
+  } catch (error: any) {
+    console.log(
+      `A new error has occured on  fetchThreadById action ${error.message}`
+    );
+  }
+}
+
+export async function createThread({
+  text,
+  author,
+  communityId,
+  path,
+}: Params) {
+  try {
+    connectToDB();
+
+    const createdThread = await Thread.create({
+      text,
+      author,
+      community: null, // Assign communityId if provided, or leave it null for personal account
+    });
+
+    // Update User model
+    await User.findByIdAndUpdate(author, {
+      $push: { threads: createdThread._id },
+    });
+
+    revalidatePath(path);
+  } catch (error: any) {
+    throw new Error(`Failed to create thread: ${error.message}`);
+  }
+}

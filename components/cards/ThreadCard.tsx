@@ -103,7 +103,7 @@ const ThreadCard = ({
         </div>
       </div>
     </article>
-  );
+  );    
 };
 
 export default ThreadCard;
