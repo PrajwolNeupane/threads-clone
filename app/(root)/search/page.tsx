@@ -18,7 +18,7 @@ async function page() {
         pageNumber: 1,
         pageSize: 25,
       });
-      console.log(result);
+      
 
       return (
         <section>
@@ -27,11 +27,18 @@ async function page() {
             {result?.users.length === 0 ? (
               <p className="no-result">No Users</p>
             ) : (
-              <>{
-                result?.users.map((user) => (
-                    <UserCard />
-                ))
-              }</>
+              <>
+                {result?.users.map((user) => (
+                  <UserCard
+                    key={user.id}
+                    id={user.id}
+                    name={user.name}
+                    username={user.username}
+                    image={user.image}
+                    personType="User"
+                  />
+                ))}
+              </>
             )}
           </div>
         </section>
