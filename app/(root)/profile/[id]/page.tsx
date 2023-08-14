@@ -1,7 +1,7 @@
 import ProfileHeader from "@/components/cards/ProfileHeader";
 import { fetchUser } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs";
-import { Tabs, TabsList, TabsTrigger,TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { redirect } from "next/navigation";
 import { profileTabs } from "@/const";
 import Image from "next/image";
@@ -51,13 +51,19 @@ const Page = async ({ params }: { params: { id: string } }) => {
                   </TabsTrigger>
                 ))}
               </TabsList>
-              {
-                profileTabs.map((tab) => (
-                  <TabsContent key={`content-${tab.label}`} value={tab.value} className="w-full text-light-1">
-                    <ThreadsTab currentUserId={user.id} accountId={userInfo.id} accountType="User" />
-                  </TabsContent>
-                ))
-              }
+              {profileTabs.map((tab) => (
+                <TabsContent
+                  key={`content-${tab.label}`}
+                  value={tab.value}
+                  className="w-full text-light-1"
+                >
+                  <ThreadsTab
+                    currentUserId={user.id}
+                    accountId={userInfo.id}
+                    accountType="User"
+                  />
+                </TabsContent>
+              ))}
             </Tabs>
           </div>
         </section>

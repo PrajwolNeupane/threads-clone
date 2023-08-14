@@ -68,9 +68,11 @@ export async function fetchUserPosts(userId:string) {
     .populate({
       path:'threads',
       model:Thread,
+      options: { sort: { createdAt: 'desc' } },
       populate:{
         path:'children',
         model:Thread,
+        options: { sort: { createdAt: 'desc' } },
         populate:{
           path:'author',
           model:User,
