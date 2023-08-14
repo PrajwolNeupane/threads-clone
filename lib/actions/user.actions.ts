@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import User from "../models/user.models";
 import { connectToDB } from "../mongoose";
 import Thread from "../models/thread.models";
+import { FilterQuery, SortOrder } from "mongoose";
 
 interface Params {
   userId: string;
@@ -61,29 +62,78 @@ export async function fetchUser({ userId }: { userId: string }): Promise<any> {
   }
 }
 
-export async function fetchUserPosts(userId:string) {
+export async function fetchUserPosts(userId: string) {
   try {
     connectToDB();
-    const threads = await User.findOne({id:userId})
-    .populate({
-      path:'threads',
-      model:Thread,
-      options: { sort: { createdAt: 'desc' } },
-      populate:{
-        path:'children',
-        model:Thread,
-        options: { sort: { createdAt: 'desc' } },
-        populate:{
-          path:'author',
-          model:User,
-          select:'name image id'
-        }
-      }
-    })
+    const threads = await User.findOne({ id: userId }).populate({
+      path: "threads",
+      model: Thread,
+      options: { sort: { createdAt: "desc" } },
+      populate: {
+        path: "children",
+        model: Thread,
+        options: { sort: { createdAt: "desc" } },
+        populate: {
+          path: "author",
+          model: User,
+          select: "name image id",
+        },
+      },
+    });
     return threads;
-  } catch (error:any) {
+  } catch (error: any) {
     console.log(
       `A new error has occured on fetchUserPosts user action ${error.message}`
+    );
+  }
+}
+
+export async function fetchUsers({
+  userId,
+  searchString = "",
+  pageNumber = 1,
+  pageSize = 20,
+  sortBy = "desc",
+}: {
+  userId: string;
+  searchString?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortBy?: SortOrder;
+}) {
+  try {
+    connectToDB();
+    const skipAmount = (pageNumber - 1) * pageSize;
+
+    const regex = new RegExp(searchString, "i");
+
+    const query: FilterQuery<typeof User> = {
+      id: { $ne: userId },
+    };
+
+    if (searchString.trim() !== "") {
+      query.$or = [
+        { username: { $regex: regex } },
+        { name: { $refex: regex } },
+      ];
+    }
+
+    const sortOption = { createdAt: sortBy };
+    const usersQuery = User.find(query)
+      .sort(sortOption)
+      .skip(skipAmount)
+      .limit(pageSize);
+
+    const totalUsersCount = await User.countDocuments(query);
+
+    const users = await usersQuery.exec();
+
+    const isNext = totalUsersCount > skipAmount + users.length;
+
+    return { users, isNext };
+  } catch (error: any) {
+    console.log(
+      `A new error has occured on fetchUsers user action ${error.message}`
     );
   }
 }
