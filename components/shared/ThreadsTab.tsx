@@ -1,29 +1,87 @@
-import { fetchUserPosts } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
+
+import { fetchCommunityPosts } from "@/lib/actions/community.actions";
+import { fetchUserPosts } from "@/lib/actions/user.actions";
+
 import ThreadCard from "../cards/ThreadCard";
 
-interface Props{
-    currentUserId:string,
-    accountId:string,
-    accountType:string
+interface Result {
+  name: string;
+  image: string;
+  id: string;
+  threads: {
+    _id: string;
+    text: string;
+    parentId: string | null;
+    author: {
+      name: string;
+      image: string;
+      id: string;
+    };
+    community: {
+      id: string;
+      name: string;
+      image: string;
+    } | null;
+    createdAt: string;
+    children: {
+      author: {
+        image: string;
+      };
+    }[];
+  }[];
 }
 
-const ThreadsTab = async ({ currentUserId,accountId,accountType}:Props) => {
+interface Props {
+  currentUserId: string;
+  accountId: string;
+  accountType: string;
+}
 
-    let result = await fetchUserPosts(accountId);
-    if(!result) redirect('/');
+async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
+  let result: Result;
 
-    return (
-        <section className="mt-9 flex flex-col gap-10">
-            {
-                result.threads.map((curr:any,indx:number) => (
-                    <ThreadCard  key={indx} id={curr?._id} currentUserId={currentUserId} parentId={curr?.parentId} content={curr?.text} author={accountType === 'User' ? 
-                    {name:result.name,image:result.image,id:result.id} : 
-                    {name:curr.author.name,image:curr.author.image, id:curr.author.id}} community={curr?.community} createdAt={curr?.createdAt} comments={curr?.comments}/>
-                ))
-            }
-        </section>
-    )
+  if (accountType === "Community") {
+    result = await fetchCommunityPosts(accountId);
+  } else {
+    result = await fetchUserPosts(accountId);
+  }
+
+  if (!result) {
+    redirect("/");
+  }
+
+  console.log(result)
+
+  return (
+    <section className='mt-9 flex flex-col gap-10'>
+      {result.threads.map((thread) => (
+        <ThreadCard
+          key={thread._id}
+          id={thread._id}
+          currentUserId={currentUserId}
+          parentId={thread.parentId}
+          content={thread.text}
+          author={
+            accountType === "User"
+              ? { name: result.name, image: result.image, id: result.id }
+              : {
+                  name: thread.author.name,
+                  image: thread.author.image,
+                  id: thread.author.id,
+                }
+          }
+          community={
+            accountType === "Community"
+              ? { name: result.name, id: result.id, image: result.image }
+              : thread.community
+          }
+          createdAt={thread.createdAt}
+          comments={thread.children}
+        />
+      ))}
+    </section>
+  );
 }
 
 export default ThreadsTab;

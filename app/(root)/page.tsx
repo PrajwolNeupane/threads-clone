@@ -6,6 +6,7 @@ export default async function Home() {
 
   const result = await fetchPost(1,30);
   const user = await currentUser();
+  if (!user) return null;
 
   return (
     <>
@@ -13,8 +14,18 @@ export default async function Home() {
       <section className="mt-9 flex flex-col gap-10">
         {
           result?.post.length === 0 ? <p className="no-result">No Threads Found</p>  :
-          result?.post.map((curr,indx) => (
-            <ThreadCard key={indx} id={curr?._id} currentUserId={user?.id!} parentId={curr?.parentId} content={curr?.text} author={curr?.author} community={curr?.community} createdAt={curr?.createdAt} comments={curr?.comments}/>
+          result?.post.map((post) => (
+            <ThreadCard
+            key={post._id}
+            id={post._id}
+            currentUserId={user.id!}
+            parentId={post.parentId}
+            content={post.text}
+            author={post.author}
+            community={post.community}
+            createdAt={post.createdAt}
+            comments={post.children}
+          />
           ))
         }
       </section>
